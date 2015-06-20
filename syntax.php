@@ -28,6 +28,10 @@ require_once(DOKU_INC . 'inc/infoutils.php');
 
 class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
 
+    const META_FIELDSET = 'fieldset';
+    const META_HINT = 'hint';
+    const META_FILEUPLOAD = 'fileupload';
+
     /**
      * @var helper_plugin_upload
      */
@@ -164,13 +168,21 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
         $params['class'] = 'upload__plugin';
 
         // Modification of the default dw HTML upload form
+        $label_fieldset = isset($options['metadata'][self::META_FIELDSET]) ?
+          $options['metadata'][self::META_FIELDSET]['label'] : $lang['puzzleupload'];
+        $label_fileupload = isset($options['metadata'][self::META_FILEUPLOAD]) ?
+          $options['metadata'][self::META_FILEUPLOAD]['label'] : $lang['puzzlefile'];
+        $label_fileupload .= ' ≤ ' . $this->helper->get_max_upload_size();
+        $label_hint = isset($options['metadata'][self::META_HINT]) ?
+          $options['metadata'][self::META_HINT]['label'] : '';
+
         $form = new Doku_Form($params);
-        $form->startFieldset($lang['puzzleupload']);
+        $form->startFieldset($label_fieldset);
         $form->addElement(formSecurityToken());
         $form->addHidden('page', hsc($ID));
         $form->addHidden('ns', hsc($ns));
         $form->addHidden('file', hsc($file));
-        $form->addElement(form_makeFileField('upload', $lang['puzzlefile'], 'upload__file', 'block'));
+        $form->addElement(form_makeFileField('upload', $label_fileupload, 'upload__file', 'block'));
         if ($options['renameable']) {
             // don't name this field here "id" because it is misinterpreted by DokuWiki if the upload form is not in media manager
             $form->addElement(form_makeTextField('new_name', '', $lang['txt_filename'] . ':', 'upload__name', 'block'));
@@ -193,6 +205,11 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
 
         if (isset($options['metadata'])) {
            foreach($options['metadata'] as $key => $attrs) {
+               if (in_array($key, array(
+                   self::META_FIELDSET, self::META_FILEUPLOAD, self::META_HINT
+               ))) {
+                   continue;
+               }
                $name = action_plugin_upload::METADATA_PREFIX . hsc($key);
                switch($attrs['type']) {
                    case 'text':
@@ -213,7 +230,7 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
         $form->endFieldset();
         $form->addElement(form_makeButton('submit', '', $lang['btn_upload']));
         
-        $html .= '<p>Zde můžete uploadovat vaši šifru ve formátu PDF (nezapomeňte též vyplnit řešení šifry).</p>';
+        $html .= '<p>' . hsc($label_hint) . '</p>';
         $html .= '<div class="upload_plugin"><p>' . NL;
         $html .= $form->getForm();
         $html .= '</p></div>' . NL;

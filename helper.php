@@ -23,6 +23,13 @@ class helper_plugin_upload extends Dokuwiki_Plugin {
 
         return $result;
     }
+    
+    public function get_max_upload_size() {
+        $val = ini_get('upload_max_filesize');
+        $val = trim($val);
+        return $val . 'B';
+    }
+
 }
 
 // vim:ts=4:sw=4:et:
