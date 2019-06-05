@@ -3,10 +3,10 @@
 /**
  * Upload plugin, allows upload for users with correct
  * permission fromin a wikipage to a defined namespace.
- * 
+ *
  * Heavily modified for specialized case of uploading files
  * for Kachna puzzlehunt game.
- * 
+ *
  * @license GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
  * @author Christian Moll <christian@chrmoll.de>
@@ -74,7 +74,7 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
         if (substr($match, 0, 13) == '{{uploadinfo>') {
             $file = substr($match, 13, -2);
             $ns = getNS($file);
-            return array('uploadns' => hsc($ns), 'file' => $file, 
+            return array('uploadns' => hsc($ns), 'file' => $file,
                 'para' => array('info' => true));
         }
 
@@ -86,7 +86,7 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
         $options['overwrite'] = in_array('OVERWRITE', $o);
         $options['fulloverwrite'] = in_array('FULLOVERWRITE', $o);
         $options['renameable'] = in_array('RENAMEABLE', $o);
-        $options['fixed'] = in_array('FIXED', $o); 
+        $options['fixed'] = in_array('FIXED', $o);
         
         $ext_options = array('METADATA' => 'metadata');
         foreach($o as $opt) {
@@ -127,7 +127,7 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
             if (isset($data['para']['info']) && $data['para']['info']) {
                 if ($auth >= AUTH_READ) {
                     $renderer->doc .= $this->upload_info($data['file']);
-                }      
+                }
             } else if ($auth >= AUTH_UPLOAD) {
                 $renderer->doc .= $this->upload_plugin_uploadform($data['uploadns'], $auth, $data['para'], $data['file']);
 //				$renderer->info['cache'] = false;
@@ -246,7 +246,7 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
             $value = trim($value);
             $parts = explode('.', $key);
             if (count($parts) > 1) {
-                $key = $parts[0];      
+                $key = $parts[0];
                 $type = $parts[1];
             } else {
                 $key = $parts[0];
@@ -270,6 +270,7 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
         $link = ml($media_id);
         $result = $metadata['result'];
         $solution = $metadata['solution'];
+        $testing = isset($metadata['testing']) ? $metadata['testing'] : null;
         $timestamp = date('Y-m-d H:i:s', $metadata['timestamp']);
 
         $html = '<p>';
@@ -280,6 +281,11 @@ class syntax_plugin_upload extends DokuWiki_Syntax_Plugin {
         $html .= '<pre class="kachna-hider kachna-hidden">';
         $html .= hsc($solution);
         $html .= '</pre>';
+        if ($testing) {
+            $html .= '<p>Poznámka k testování: ';
+            $html .= hsc($testing);
+            $html .= '</p>';
+        }
         
         return $html;
     }
